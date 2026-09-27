@@ -1,0 +1,205 @@
+
+=== ESTRUCTURA APP ===
+/var/www/pccurico-hosting-panel/app/Controllers/AuthController.php
+/var/www/pccurico-hosting-panel/app/Controllers/DashboardController.php
+/var/www/pccurico-hosting-panel/app/Controllers/DashboardController.php.backup.20260926225204
+/var/www/pccurico-hosting-panel/app/Controllers/DashboardController.php.bak.20260926-230842
+/var/www/pccurico-hosting-panel/app/Controllers/DashboardController.php.bak.20260926-231013
+/var/www/pccurico-hosting-panel/app/Controllers/DashboardController.php.bak.20260926-231040
+/var/www/pccurico-hosting-panel/app/Controllers/SitesController.php
+/var/www/pccurico-hosting-panel/app/Core/Bootstrap.php
+/var/www/pccurico-hosting-panel/app/Core/Database.php
+/var/www/pccurico-hosting-panel/app/Core/Router.php
+/var/www/pccurico-hosting-panel/app/Core/View.php
+/var/www/pccurico-hosting-panel/app/Middleware/Csrf.php
+/var/www/pccurico-hosting-panel/app/Services/ApacheService.php
+/var/www/pccurico-hosting-panel/app/Views/auth/login.php
+/var/www/pccurico-hosting-panel/app/Views/dashboard/index.php
+/var/www/pccurico-hosting-panel/app/Views/dashboard/index.php.backup.20260926225204
+/var/www/pccurico-hosting-panel/app/Views/dashboard/index.php.bak.20260926-231013
+/var/www/pccurico-hosting-panel/app/Views/dashboard/index.php.bak.20260926-231040
+/var/www/pccurico-hosting-panel/app/Views/layouts/app.php
+/var/www/pccurico-hosting-panel/app/Views/sites/create.php
+/var/www/pccurico-hosting-panel/app/Views/sites/index.php
+/var/www/pccurico-hosting-panel/app/Views/sites/not-found.php
+/var/www/pccurico-hosting-panel/app/Views/sites/view.php
+
+=== ROUTES ===
+<?php
+
+declare(strict_types=1);
+
+use Pccurico\HostingPanel\Controllers\AuthController;
+use Pccurico\HostingPanel\Controllers\DashboardController;
+use Pccurico\HostingPanel\Controllers\SitesController;
+use Pccurico\HostingPanel\Core\Router;
+
+$router = new Router();
+
+$auth = new AuthController();
+$sitesController = new SitesController();
+
+/*
+ * Auth
+ */
+$router->get('/', function (): void {
+    header('Location: /dashboard');
+    exit;
+});
+
+$router->get('/login', [$auth::class, 'showLogin']);
+$router->post('/login', [$auth::class, 'login']);
+$router->get('/logout', [$auth::class, 'logout']);
+
+/*
+ * Dashboard
+ */
+$router->get(
+    '/dashboard',
+    [DashboardController::class, 'index']
+);
+
+/*
+ * Hosting -> Sitios
+ */
+$router->get('/sites', [$sitesController::class, 'index']);
+
+$router->get(
+    '/sites/view',
+    [$sitesController::class, 'view']
+);
+
+$router->get(
+    '/sites/create',
+    [$sitesController::class, 'create']
+);
+
+$router->post(
+    '/sites/create',
+    [$sitesController::class, 'create']
+);
+
+return $router;
+
+=== MIGRATIONS ===
+/var/www/pccurico-hosting-panel/database/migrations/001_initial.sql
+--- /var/www/pccurico-hosting-panel/database/migrations/001_initial.sql
+CREATE TABLE IF NOT EXISTS users (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    email VARCHAR(190) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS roles (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_roles (
+    user_id BIGINT UNSIGNED NOT NULL,
+    role_id BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (user_id, role_id),
+    CONSTRAINT fk_user_roles_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_user_roles_role
+        FOREIGN KEY (role_id) REFERENCES roles(id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS settings (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    setting_key VARCHAR(190) NOT NULL UNIQUE,
+    setting_value TEXT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NULL,
+    action VARCHAR(190) NOT NULL,
+    target_type VARCHAR(100) NULL,
+    target_id VARCHAR(100) NULL,
+    ip_address VARCHAR(45) NULL,
+    user_agent TEXT NULL,
+    details JSON NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_audit_user (user_id),
+    INDEX idx_audit_action (action),
+    INDEX idx_audit_created (created_at),
+    CONSTRAINT fk_audit_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO roles (name)
+SELECT 'SuperAdministrador'
+WHERE NOT EXISTS (
+    SELECT 1 FROM roles WHERE name = 'SuperAdministrador'
+);
+
+=== MODELOS ===
+
+=== CONTROLLERS ===
+/var/www/pccurico-hosting-panel/app/Controllers/AuthController.php
+/var/www/pccurico-hosting-panel/app/Controllers/DashboardController.php
+/var/www/pccurico-hosting-panel/app/Controllers/DashboardController.php.backup.20260926225204
+/var/www/pccurico-hosting-panel/app/Controllers/DashboardController.php.bak.20260926-230842
+/var/www/pccurico-hosting-panel/app/Controllers/DashboardController.php.bak.20260926-231013
+/var/www/pccurico-hosting-panel/app/Controllers/DashboardController.php.bak.20260926-231040
+/var/www/pccurico-hosting-panel/app/Controllers/SitesController.php
+
+=== MIDDLEWARE ===
+/var/www/pccurico-hosting-panel/app/Middleware/Csrf.php
+--- /var/www/pccurico-hosting-panel/app/Middleware/Csrf.php
+<?php
+
+declare(strict_types=1);
+
+namespace Pccurico\HostingPanel\Middleware;
+
+final class Csrf
+{
+    public static function token(): string
+    {
+        if (empty($_SESSION['_csrf'])) {
+            $_SESSION['_csrf'] = bin2hex(random_bytes(32));
+        }
+
+        return $_SESSION['_csrf'];
+    }
+
+    public static function validate(?string $token): bool
+    {
+        return is_string($token)
+            && isset($_SESSION['_csrf'])
+            && hash_equals($_SESSION['_csrf'], $token);
+    }
+}
+
+=== DATABASE TABLES ===
+audit_logs
+roles
+settings
+user_roles
+users
+
+=== USERS TABLE STRUCTURE ===
+Table	Create Table
+users	CREATE TABLE `users` (\n  `id` bigint unsigned NOT NULL AUTO_INCREMENT,\n  `name` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `email` varchar(190) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `active` tinyint(1) NOT NULL DEFAULT '1',\n  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `email` (`email`)\n) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+=== ROLES/PERMISSIONS TABLES ===
+Table	Create Table
+roles	CREATE TABLE `roles` (\n  `id` bigint unsigned NOT NULL AUTO_INCREMENT,\n  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `name` (`name`)\n) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+=== PHP SYNTAX ===
+
+=== FIN ===

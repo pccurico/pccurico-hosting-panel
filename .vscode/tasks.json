@@ -1,0 +1,23 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Add permissions tables",
+			"type": "shell",
+			"command": "php -l Z:\\pccurico-hosting-panel\\database\\migrations/002_add_permissions_table.sql",
+			"isBackground": false
+		},
+		{
+			"label": "Create permissions migration",
+			"type": "shell",
+			"command": "php -l Z:\\pccurico-hosting-panel\\database\\migrations/002_add_permissions_table.sql",
+			"isBackground": false
+		},
+		{
+			"label": "Create role_permissions migration",
+			"type": "shell",
+			"command": "php -l Z:\\pccurico-hosting-panel\\database\\migrations/003_add_role_permissions_table.sql",
+			"isBackground": false
+		}
+	]
+}

@@ -84,7 +84,7 @@ declare(strict_types=1);
             <div class="form-group">
                 <label for="php">PHP</label>
 
-                <select id="php" name="php">
+                <select id="php_version" name="php_version">
                     <option value="8.3" selected>PHP-FPM 8.3</option>
                 </select>
             </div>

@@ -1,0 +1,60 @@
+.pcc-table-wrap {
+    overflow-x: auto;
+}
+
+.pcc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.pcc-table th {
+    text-align: left;
+    color: #6e7b8b;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 12px;
+    border-bottom: 1px solid #2a3440;
+}
+
+.pcc-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #202934;
+    color: #aeb9c7;
+}
+
+.pcc-table tr:hover td {
+    background: #161e27;
+}
+
+.pcc-code-box {
+    margin-top: 15px;
+    padding: 15px;
+    background: #0b1016;
+    border: 1px solid #252f3a;
+    border-radius: 7px;
+    color: #aebac8;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.6;
+    overflow: auto;
+    max-height: 430px;
+    white-space: pre-wrap;
+}
+
+.pcc-list {
+    margin-top: 15px;
+}
+
+.pcc-list-item {
+    padding: 13px 15px;
+    border-bottom: 1px solid #242e39;
+    color: #aeb9c7;
+    font-family: Consolas, monospace;
+    font-size: 12px;
+}
+
+.pcc-list-item:last-child {
+    border-bottom: 0;
+}
