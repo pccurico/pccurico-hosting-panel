@@ -26,7 +26,16 @@ $panelModulesController = new PanelModulesController();
 $serverModulesController = new ServerModulesController();
 $rolesController = new RolesController();
 $permissionsController = new PermissionsController();
-$serverSetupController = new ServerSetupController();
+// Server Setup Controller - requires Router and View dependencies
+// Create a View instance using the existing static method
+$view = new class {
+    public function render(string $view, array $data = []): void
+    {
+        \Pccurico\HostingPanel\Core\View::render($view, $data);
+    }
+};
+
+$serverSetupController = new ServerSetupController($router, $view);
 
 /*
  * Auth

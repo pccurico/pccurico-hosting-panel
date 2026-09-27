@@ -125,12 +125,27 @@ class ServerSetupController extends UnifiedViewController
                     # Configurar DNS
                 }
                 break;
-            case 8: // Cloudflare
-                if (!empty($_POST['cloudflare_action'])) {
-                    # Configurar Cloudflare
+            case 8: // Seguridad (SSH, Firewall)
+                if (!empty($_POST['ssh_port'])) {
+                    # Configurar SSH
+                }
+                if (!empty($_POST['firewall_enabled'])) {
+                    # Configurar Firewall
                 }
                 break;
-            case 9: // Finalización
+            case 9: // Herramientas y Mantenimiento
+                if (!empty($_POST['log_retention_days'])) {
+                    # Configurar retención de logs
+                }
+                if (!empty($_POST['backup_enabled'])) {
+                    # Configurar backups automáticos
+                }
+                if (!empty($_POST['cron_enabled'])) {
+                    # Configurar cron jobs
+                }
+                if (!empty($_POST['mail_smtp'])) {
+                    # Configurar SMTP
+                }
                 # Guardar configuración y completar setup
                 break;
         }

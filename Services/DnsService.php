@@ -5,7 +5,7 @@ namespace Pccurico\HostingPanel\Services;
 class DnsService
 {
     private string $zone;
-    private string[] $records;
+    private array $records;
     private bool $enabled;
 
     public function __construct()
