@@ -286,9 +286,9 @@ button {
 
 :root {
     --panel-bg: #f4f6f9;
-    --panel-card: #ffffff;
+    --panel-card: #111827;
     --panel-border: #e4e8ee;
-    --panel-text: #172033;
+    --panel-text: #111827;
     --panel-muted: #6d7686;
     --panel-dark: #111827;
     --panel-accent: #1f6feb;
@@ -831,9 +831,9 @@ body.panel-page {
 
 .panel-stat-card {
     padding: 20px;
-    border: 1px solid rgba(148, 163, 184, .18);
+    border: 1px solid #94a3b82e;
     border-radius: 14px;
-    background: var(--panel-card-bg, #fff);
+    background: var(--panel-card-bg, #94a3b800);
 }
 
 .panel-stat-label {
@@ -857,7 +857,7 @@ body.panel-page {
 .panel-card {
     border: 1px solid rgba(148, 163, 184, .18);
     border-radius: 14px;
-    background: var(--panel-card-bg, #fff);
+    background: var(--panel-card-bg, #94a3b800);
     overflow: hidden;
     margin-bottom: 20px;
 }
@@ -880,13 +880,18 @@ body.panel-page {
 
 .sites-table-wrapper {
     width: 100%;
-    overflow-x: auto;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 .sites-table {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     border-collapse: collapse;
-    min-width: 980px;
+    table-layout: fixed;
 }
 
 .sites-table th,
@@ -895,6 +900,10 @@ body.panel-page {
     text-align: left;
     vertical-align: middle;
     border-bottom: 1px solid rgba(148, 163, 184, .12);
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .sites-table th {

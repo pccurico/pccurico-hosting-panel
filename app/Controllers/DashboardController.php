@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Pccurico\HostingPanel\Controllers;
 
-use Pccurico\HostingPanel\Core\View;
+use Pccurico\HostingPanel\Controllers\UnifiedViewController;
 
-final class DashboardController
+final class DashboardController extends UnifiedViewController
 {
     public function index(): void
     {
@@ -19,7 +19,13 @@ final class DashboardController
             'storage'  => $this->storage(),
         ];
 
-        View::render('dashboard/index', $data);
+        $this->renderPage(
+            'dashboard/index',
+            'Dashboard',
+            'INFRAESTRUCTURA',
+            '/dashboard',
+            $data
+        );
     }
 
     private function requireAuthentication(): void
