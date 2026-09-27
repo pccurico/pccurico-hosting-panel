@@ -1,0 +1,129 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Pccurico\HostingPanel\Controllers;
+
+use Pccurico\HostingPanel\Core\Database;
+use Pccurico\HostingPanel\Core\View;
+
+final class DashboardController
+{
+    public function index(): void
+    {
+        if (empty($_SESSION['user_id'])) {
+            header('Location: /login');
+            exit;
+        }
+
+        $system = [
+            'hostname' => gethostname() ?: 'ia-server',
+            'php' => PHP_VERSION,
+            'os' => php_uname('s') . ' ' . php_uname('r'),
+            'uptime' => $this->uptime(),
+            'load' => $this->load(),
+            'disk' => $this->disk(),
+        ];
+
+        $services = [
+            'apache2' => $this->service('apache2'),
+            'mysql' => $this->service('mysql'),
+            'php8.3-fpm' => $this->service('php8.3-fpm'),
+            'cloudflared' => $this->service('cloudflared'),
+            'ollama' => $this->service('ollama'),
+        ];
+
+        $memory = $this->memory();
+
+        View::render('dashboard/index', [
+            'system' => $system,
+            'memory' => $memory,
+            'services' => $services,
+        ]);
+    }
+
+    private function command(string $command): string
+    {
+        return trim((string) shell_exec($command . ' 2>/dev/null'));
+    }
+
+    private function service(string $name): string
+    {
+        $status = $this->command(
+            'systemctl is-active ' . escapeshellarg($name)
+        );
+
+        return $status === 'active' ? 'active' : 'inactive';
+    }
+
+    private function uptime(): string
+    {
+        $value = $this->command('awk \'{print $1}\' /proc/uptime');
+
+        if (!is_numeric($value)) {
+            return 'N/D';
+        }
+
+        $seconds = (int) floor((float) $value);
+
+        $days = intdiv($seconds, 86400);
+        $hours = intdiv($seconds % 86400, 3600);
+        $minutes = intdiv($seconds % 3600, 60);
+
+        return "{$days}d {$hours}h {$minutes}m";
+    }
+
+    private function load(): string
+    {
+        $load = sys_getloadavg();
+
+        return isset($load[0]) ? number_format($load[0], 2) : 'N/D';
+    }
+
+    private function memory(): array
+    {
+        $data = file('/proc/meminfo', FILE_IGNORE_NEW_LINES);
+
+        $values = [];
+
+        foreach ($data ?: [] as $line) {
+            if (preg_match('/^(MemTotal|MemAvailable):\s+(\d+)/', $line, $m)) {
+                $values[$m[1]] = (int) $m[2];
+            }
+        }
+
+        $total = $values['MemTotal'] ?? 0;
+        $available = $values['MemAvailable'] ?? 0;
+        $used = max(0, $total - $available);
+
+        return [
+            'total' => round($total / 1024 / 1024, 2),
+            'used' => round($used / 1024 / 1024, 2),
+            'percent' => $total > 0 ? round(($used / $total) * 100, 1) : 0,
+        ];
+    }
+
+    private function disk(): array
+    {
+        $path = dirname(__DIR__, 3);
+
+        $total = @disk_total_space($path);
+        $free = @disk_free_space($path);
+
+        if (!$total || !$free) {
+            return [
+                'total' => 0,
+                'used' => 0,
+                'percent' => 0,
+            ];
+        }
+
+        $used = $total - $free;
+
+        return [
+            'total' => round($total / 1024 / 1024 / 1024, 2),
+            'used' => round($used / 1024 / 1024 / 1024, 2),
+            'percent' => round(($used / $total) * 100, 1),
+        ];
+    }
+}

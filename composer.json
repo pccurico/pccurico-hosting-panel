@@ -1,0 +1,20 @@
+{
+    "name": "pccurico/pccurico-hosting-panel",
+    "description": "PCCURICO Hosting Panel",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.3",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pccurico\\HostingPanel\\": "app/"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@php -r \"echo 'PCCURICO Hosting Panel instalado.' . PHP_EOL;\""
+        ]
+    }
+}
